@@ -1,1 +1,8 @@
-/*    /index.html   200
+# Forms
+/thank-you    /thank-you.html    200!
+/              /index.html      200
+
+# Netlify Forms success redirect
+/contact-us-form                 /thank-you      200
+/training-registration-form      /thank-you      200
+/talent-request-form             /thank-you      200

@@ -1,39 +1,47 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 
 const TalentRequest = () => {
     const [statusMessage, setStatusMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const navigate = useNavigate(); // Initialize navigate hook
 
+    // The handleSubmit function is simplified.
+    // It still uses e.preventDefault() for client-side control,
+    // but then directly triggers a programmatic submission to Netlify,
+    // followed by a navigation to the thank-you page.
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setStatusMessage('');
         setIsSuccess(false);
 
-        // For Netlify Forms, the browser's native form submission is used
-        // so you don't typically need a fetch API call here.
-        // The onSubmit handler is primarily for client-side validation,
-        // displaying loading states, and then resetting the form.
-
-        // You can still log data locally for development purposes if you wish:
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
         console.log("Talent Request Form Data (to be sent to Netlify):", data);
 
-        // IMPORTANT: The actual submission to Netlify happens via the browser
-        // when the form is submitted because of `data-netlify="true"`.
-        // We're just simulating a client-side delay for UX feedback here.
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            // Netlify forms can be submitted via a fetch API call as well,
+            // which gives more control over client-side UX before redirect.
+            // This is an alternative to purely relying on the browser's native submission.
+            // This method keeps your client-side validation/loading, then submits.
+            await fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString(),
+            });
 
-        // Simulate success feedback
-        setStatusMessage('Talent request submitted successfully! Our team will reach out to you shortly.');
-        setIsSuccess(true);
-        e.target.reset(); // Clear the form fields
+            // After successful submission (via fetch), navigate to the thank-you page.
+            navigate('/thank-you'); // Redirect to a success page
 
-        // Clear message after a few seconds
-        setTimeout(() => setStatusMessage(''), 5000);
-        setIsLoading(false);
+        } catch (error) {
+            console.error("Form submission error:", error);
+            setStatusMessage('Failed to submit request. Please try again.');
+            setIsSuccess(false);
+            setIsLoading(false);
+        }
+        // No need for setTimeout here as we are redirecting
     };
 
     return (
@@ -61,7 +69,7 @@ const TalentRequest = () => {
                         method="POST"
                         data-netlify="true"
                         netlify-honeypot="bot-field" // Honeypot for spam prevention
-                        // onSubmit={handleSubmit} // Keep the local handleSubmit for UX feedback
+                        onSubmit={handleSubmit} // Keep the local handleSubmit for UX feedback
                         className="space-y-6"
                     >
                         {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
