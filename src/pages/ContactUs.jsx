@@ -111,6 +111,8 @@ const ContactUs = () => {
                     >
                         {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
                         <input type="hidden" name="form-name" value="contact-us-form" />
+                        <input type="hidden" name="redirect" value="/thank-you" />
+
                         {/* Honeypot field - must be hidden from human users */}
                         <p className="hidden">
                             <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>

@@ -15,6 +15,7 @@ import WhyChooseUs from './pages/WhyChooseUs.jsx';
 import ContactUs from './pages/ContactUs.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsOfService from './pages/TermsOfService.jsx';
+import ThankYou from './pages/ThankYou';
 
 const App = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -269,6 +270,7 @@ const App = () => {
                     <Route path="/contact" element={<ContactUs />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/thank-you" element={<ThankYou />} />
                 </Routes>
             </main>
 
