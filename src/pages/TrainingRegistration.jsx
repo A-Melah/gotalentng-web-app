@@ -36,7 +36,7 @@ const TrainingRegistration = () => {
             // After successful submission (via fetch), navigate to the thank-you page.
             // This is the client-side equivalent of the _redirects file for forms.
             // Netlify's _redirects file handles the server-side redirect for non-JS submissions.
-            navigate('/thank-you'); // Redirect to a success page
+            navigate('/thank-you?form=training'); // Redirect to a success page
 
         } catch (error) {
             console.error("Form submission error:", error);
@@ -78,7 +78,7 @@ const TrainingRegistration = () => {
                     >
                         {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
                         <input type="hidden" name="form-name" value="training-registration-form" />
-                        <input type="hidden" name="redirect" value="/thank-you?form=training" />
+                        {/* <input type="hidden" name="redirect" value="/thank-you?form=training" /> */}
                         {/* Honeypot field - must be hidden from human users */}
                         <p className="hidden">
                             <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>

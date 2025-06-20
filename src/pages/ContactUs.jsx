@@ -33,7 +33,7 @@ const ContactUs = () => {
             });
 
             // After successful submission (via fetch), navigate to the thank-you page.
-            navigate('/thank-you'); // Redirect to a success page
+            navigate('/thank-you?form=contact'); // Redirect to a success page
 
         } catch (error) {
             console.error("Form submission error:", error);
@@ -110,7 +110,7 @@ const ContactUs = () => {
                     >
                         {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
                         <input type="hidden" name="form-name" value="contact-us-form" />
-                        <input type="hidden" name="redirect" value="/thank-you?form=contact" />
+                        {/* <input type="hidden" name="redirect" value="/thank-you?form=contact" /> */}
 
                         {/* Honeypot field - must be hidden from human users */}
                         <p className="hidden">
