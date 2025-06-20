@@ -74,6 +74,7 @@ const TalentRequest = () => {
                     >
                         {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
                         <input type="hidden" name="form-name" value="talent-request-form" />
+                        <input type="hidden" name="redirect" value="/thank-you?form=talent" />
                         {/* Honeypot field - must be hidden from human users */}
                         <p className="hidden">
                             <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>
