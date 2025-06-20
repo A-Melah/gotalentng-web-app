@@ -6,25 +6,25 @@ const TrainingRegistration = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    // Note: With Netlify Forms, the actual submission is handled by Netlify.
-    // The JavaScript here will simulate a client-side response for a better UX,
-    // but the data will be captured by Netlify's backend.
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setStatusMessage('');
         setIsSuccess(false);
 
-        // Netlify's form handling doesn't require manual fetch in most cases,
-        // but we can simulate a client-side success/loading state.
-        // The data-netlify attribute handles the actual submission.
+        // For Netlify Forms, the browser's native form submission is used
+        // so you don't typically need a fetch API call here.
+        // The onSubmit handler is primarily for client-side validation,
+        // displaying loading states, and then resetting the form.
 
         // You can still log data locally for development purposes if you wish:
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
         console.log("Training Registration Form Data (to be sent to Netlify):", data);
 
-        // Simulate network delay for a better user experience, as if data was sent
+        // IMPORTANT: The actual submission to Netlify happens via the browser
+        // when the form is submitted because of `data-netlify="true"`.
+        // We're just simulating a client-side delay for UX feedback here.
         await new Promise(resolve => setTimeout(resolve, 1500));
 
         // Simulate success feedback
@@ -58,14 +58,14 @@ const TrainingRegistration = () => {
 
                     {/* Netlify Form: Add data-netlify="true" and hidden form-name input */}
                     <form
-                        name="training-registration-form" // This name is used by Netlify to identify the form
+                        name="training-registration-form" // This name MUST match the hidden form in index.html
                         method="POST"
                         data-netlify="true"
                         netlify-honeypot="bot-field" // Honeypot for spam prevention
                         onSubmit={handleSubmit} // Keep the local handleSubmit for UX feedback
                         className="space-y-6"
                     >
-                        {/* Hidden Netlify form fields */}
+                        {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
                         <input type="hidden" name="form-name" value="training-registration-form" />
                         {/* Honeypot field - must be hidden from human users */}
                         <p className="hidden">

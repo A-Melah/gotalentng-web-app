@@ -2,19 +2,76 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./src/assets/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="./public/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GoTalent NG</title>
+    <!--
+      For production, Tailwind CSS should be processed and optimized via a build tool (like Vite/PostCSS).
+      The CDN link is suitable for development/prototyping but not for a production-ready build
+      due to file size and lack of purging. Your build process (npm run build) will
+      generate the optimized CSS and link it automatically.
+    -->
+    <style>
+      /* Ensure Inter font is applied globally */
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Hide the hidden Netlify forms visually */
+      .netlify-hidden-form {
+        display: none;
+      }
+    </style>
+    <!-- Preconnect to Google Fonts for Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <form name="contact-us-form" netlify netlify-honeypot="bot-field" hidden>
-  <input type="text" name="name" />
-  <input type="email" name="email" />
-  <input type="text" name="subject" />
-  <textarea name="message"></textarea>
-</form>
+
+    <!--
+      NETLIFY FORM DETECTION:
+      These hidden forms are crucial for Netlify to detect your forms during its build process.
+      React renders forms dynamically, so Netlify's build bot wouldn't see them otherwise.
+      The 'name' attributes here MUST match the 'name' attributes in your React component forms.
+      The 'netlify' attribute is a shorthand for data-netlify="true".
+      The 'netlify-honeypot' is for spam protection.
+      The 'hidden' attribute or 'display: none' via class ensures they are not visible to users.
+    -->
+
+    <!-- Hidden form for Contact Us -->
+    <form name="contact-us-form" netlify netlify-honeypot="bot-field" class="netlify-hidden-form">
+      <input type="hidden" name="form-name" value="contact-us-form" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="subject" />
+      <textarea name="message"></textarea>
+      <input name="bot-field" />
+    </form>
+
+    <!-- Hidden form for Training Registration -->
+    <form name="training-registration-form" netlify netlify-honeypot="bot-field" class="netlify-hidden-form">
+      <input type="hidden" name="form-name" value="training-registration-form" />
+      <input type="text" name="fullName" />
+      <input type="email" name="email" />
+      <input type="tel" name="phoneNumber" />
+      <select name="program"></select>
+      <textarea name="message"></textarea>
+      <input name="bot-field" />
+    </form>
+
+    <!-- Hidden form for Talent Request -->
+    <form name="talent-request-form" netlify netlify-honeylot="bot-field" class="netlify-hidden-form">
+      <input type="hidden" name="form-name" value="talent-request-form" />
+      <input type="text" name="companyName" />
+      <input type="text" name="contactPerson" />
+      <input type="email" name="email" />
+      <input type="tel" name="phoneNumber" />
+      <select name="talentType"></select>
+      <textarea name="message"></textarea>
+      <input name="bot-field" />
+    </form>
 
   </body>
 </html>
