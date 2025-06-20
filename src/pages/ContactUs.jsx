@@ -80,8 +80,7 @@ const ContactUs = () => {
                         <p className="text-gray-700 mb-2">Visit us during business hours.</p>
                         <p className="text-gray-700 text-sm">
                             GoTalent NG Limited<br/>
-                            [Your Office Address Line 1]<br/>
-                            [Your Office Address Line 2], Nigeria
+                            [Office Address], Nigeria
                         </p>
                         <p className="text-gray-600 text-sm mt-2">Mon - Fri: 9:00 AM - 5:00 PM WAT</p>
                         <a href="https://maps.app.goo.gl/YourGoogleMapsLink" target="_blank" rel="noopener noreferrer" className="text-indigo-700 hover:underline font-medium mt-2">Get Directions</a>
