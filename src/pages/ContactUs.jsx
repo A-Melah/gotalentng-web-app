@@ -98,7 +98,7 @@ const ContactUs = () => {
                         method="POST"
                         data-netlify="true"
                         netlify-honeypot="bot-field" // Honeypot for spam prevention
-                        onSubmit={handleSubmit} // Keep the local handleSubmit for UX feedback
+                        // onSubmit={handleSubmit} // Keep the local handleSubmit for UX feedback
                         className="space-y-6"
                     >
                         {/* Hidden Netlify form fields - MUST be here for Netlify to link submissions */}
