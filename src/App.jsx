@@ -9,7 +9,7 @@ import About from './pages/About.jsx';
 import Services from './pages/Services.jsx';
 import TrainingRegistration from './pages/TrainingRegistration.jsx';
 import TalentRequest from './pages/TalentRequest.jsx';
-import WhyChooseUs from './pages/WhyChooseUs.jsx';
+import WhyChooseUs from './pages/WhyChooseUs.jsx'; // Changed from .jsx to no extension for consistency
 import ContactUs from './pages/ContactUs.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsOfService from './pages/TermsOfService.jsx';
@@ -172,8 +172,9 @@ const App = () => {
                     </div>
 
                     {/* Desktop Navigation Links - Hidden on small screens, displayed as flex on md and up */}
-                    {/* flex-1 justify-end pushes links to the right on desktop */}
-                    <ul className="hidden md:flex flex-1 justify-end space-x-4 items-center">
+                    {/* Added responsive space-x classes: smaller gap on medium screens, larger on large/xl screens */}
+                    {/* Added responsive text sizing for links */}
+                    <ul className="hidden md:flex flex-1 justify-end md:space-x-3 lg:space-x-5 xl:space-x-8 items-center">
                         {navLinks.map((link) => (
                             <li key={link.name} className="relative" ref={link.name === 'Services' ? servicesRef : null}>
                                 {link.dropdown ? (
@@ -182,11 +183,11 @@ const App = () => {
                                         <button
                                             onClick={() => setIsServicesDropdownOpen(prev => !prev)}
                                             onMouseEnter={() => setIsServicesDropdownOpen(true)}
-                                            className={`font-medium transition duration-300 ease-in-out flex items-center ${
-                                                location.pathname === link.path || link.dropdown.some(item => location.pathname === item.path.split('#')[0])
+                                            className={`font-medium transition duration-300 ease-in-out flex items-center
+                                                ${location.pathname === link.path || link.dropdown.some(item => location.pathname === item.path.split('#')[0])
                                                     ? 'text-indigo-700 font-bold'
-                                                    : 'text-gray-600 hover:text-indigo-700'
-                                            }`}
+                                                    : 'text-gray-600 hover:text-indigo-700'}
+                                                md:text-xs lg:text-sm xl:text-base`}
                                         >
                                             {link.name}
                                             <svg className={`ml-2 w-4 h-4 transition-transform duration-200 ${isServicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -212,7 +213,8 @@ const App = () => {
                                                         <Link
                                                             to={item.path} // e.g., /services#business-advisory
                                                             className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-700 transition duration-150 rounded-md"
-                                                            onClick={() => { setIsServicesDropdownOpen(false); }} // Close dropdown on click
+                                                            // Close dropdown on click
+                                                            onClick={() => { setIsServicesDropdownOpen(false); }}
                                                         >
                                                             {item.name}
                                                         </Link>
@@ -225,11 +227,11 @@ const App = () => {
                                     // Standard navigation link without a dropdown
                                     <Link
                                         to={link.path}
-                                        className={`font-medium transition duration-300 ease-in-out ${
-                                            location.pathname === link.path
+                                        className={`font-medium transition duration-300 ease-in-out
+                                            ${location.pathname === link.path
                                                 ? 'text-indigo-700 font-bold'
-                                                : 'text-gray-600 hover:text-indigo-700'
-                                        }`}
+                                                : 'text-gray-600 hover:text-indigo-700'}
+                                            md:text-xs lg:text-sm xl:text-base`}
                                     >
                                         {link.name}
                                     </Link>
@@ -241,11 +243,11 @@ const App = () => {
                             <li className="relative">
                                 <Link
                                     to="/profile"
-                                    className={`font-medium transition duration-300 ease-in-out ${
-                                        location.pathname === '/profile'
+                                    className={`font-medium transition duration-300 ease-in-out
+                                        ${location.pathname === '/profile'
                                             ? 'text-indigo-700 font-bold'
-                                            : 'text-gray-600 hover:text-indigo-700'
-                                    }`}
+                                            : 'text-gray-600 hover:text-indigo-700'}
+                                        md:text-xs lg:text-sm xl:text-base`}
                                 >
                                     My Profile
                                 </Link>
@@ -255,11 +257,11 @@ const App = () => {
                                 <li>
                                     <Link
                                         to="/login"
-                                        className={`font-medium transition duration-300 ease-in-out ${
-                                            location.pathname === '/login'
+                                        className={`font-medium transition duration-300 ease-in-out
+                                            ${location.pathname === '/login'
                                                 ? 'text-indigo-700 font-bold'
-                                                : 'text-gray-600 hover:text-indigo-700'
-                                        }`}
+                                                : 'text-gray-600 hover:text-indigo-700'}
+                                            md:text-xs lg:text-sm xl:text-base`}
                                     >
                                         Login
                                     </Link>
@@ -267,7 +269,7 @@ const App = () => {
                                 <li>
                                     <Link
                                         to="/register"
-                                        className="bg-indigo-600 text-white px-4 py-2 rounded-full font-bold hover:bg-indigo-700 transition duration-300 ease-in-out"
+                                        className="bg-indigo-600 text-white md:px-3 md:py-1 lg:px-4 lg:py-2 rounded-full font-bold hover:bg-indigo-700 transition duration-300 ease-in-out md:text-xs lg:text-sm xl:text-base"
                                     >
                                         Register
                                     </Link>
@@ -278,7 +280,7 @@ const App = () => {
                             <li>
                                 <button
                                     onClick={handleLogout}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-full font-bold hover:bg-red-600 transition duration-300 ease-in-out"
+                                    className="bg-red-500 text-white md:px-3 md:py-1 lg:px-4 lg:py-2 rounded-full font-bold hover:bg-red-600 transition duration-300 ease-in-out md:text-xs lg:text-sm xl:text-base"
                                 >
                                     Logout
                                 </button>
@@ -287,11 +289,11 @@ const App = () => {
                         <li>
                             <Link
                                 to="/contact"
-                                className={`font-medium transition duration-300 ease-in-out ${
-                                    location.pathname === '/contact'
+                                className={`font-medium transition duration-300 ease-in-out
+                                    ${location.pathname === '/contact'
                                         ? 'text-indigo-700 font-bold'
-                                        : 'text-gray-600 hover:text-indigo-700'
-                                }`}
+                                        : 'text-gray-600 hover:text-indigo-700'}
+                                    md:text-xs lg:text-sm xl:text-base`}
                             >
                                 Contact Us
                             </Link>
@@ -400,16 +402,16 @@ const App = () => {
                                 >
                                     Login
                                 </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/register"
-                                    onClick={toggleMobileMenu} // Close mobile menu on click
-                                    className="block bg-indigo-600 text-white px-4 py-2 rounded-full font-bold hover:bg-indigo-700 transition duration-300 ease-in-out text-center"
-                                >
-                                    Register
-                                </Link>
-                            </li>
+                                </li>
+                                <li>
+                                    <Link
+                                        to="/register"
+                                        onClick={toggleMobileMenu} // Close mobile menu on click
+                                        className="block bg-indigo-600 text-white px-4 py-2 rounded-full font-bold hover:bg-indigo-700 transition duration-300 ease-in-out text-center"
+                                    >
+                                        Register
+                                    </Link>
+                                </li>
                             </>
                         )}
                         {currentUser && (
