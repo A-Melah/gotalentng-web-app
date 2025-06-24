@@ -173,7 +173,7 @@ const App = () => {
 
                     {/* Desktop Navigation Links - Hidden on small screens, displayed as flex on md and up */}
                     {/* flex-1 justify-end pushes links to the right on desktop */}
-                    <ul className="hidden md:flex flex-1 justify-end space-x-8 items-center">
+                    <ul className="hidden md:flex flex-1 justify-end space-x-4 items-center">
                         {navLinks.map((link) => (
                             <li key={link.name} className="relative" ref={link.name === 'Services' ? servicesRef : null}>
                                 {link.dropdown ? (
