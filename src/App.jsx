@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { auth, db } from './firebase-config'; // Import Firebase auth and db instances
-import { onAuthStateChanged, signOut } from 'firebase/auth'; // Import auth functions
+import { auth, db } from './firebase-config';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 // Import all page components from the 'pages' directory.
 import Home from './pages/Home.jsx';
@@ -9,7 +9,7 @@ import About from './pages/About.jsx';
 import Services from './pages/Services.jsx';
 import TrainingRegistration from './pages/TrainingRegistration.jsx';
 import TalentRequest from './pages/TalentRequest.jsx';
-import WhyChooseUs from './pages/WhyChooseUs.jsx'; // Changed from .jsx to no extension for consistency
+import WhyChooseUs from './pages/WhyChooseUs.jsx';
 import ContactUs from './pages/ContactUs.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsOfService from './pages/TermsOfService.jsx';
@@ -18,18 +18,24 @@ import TermsOfService from './pages/TermsOfService.jsx';
 import Register from './pages/Register.jsx';
 import Login from './pages/Login.jsx';
 import Profile from './pages/Profile.jsx';
-import ProfileEdit from './pages/ProfileEdit.jsx'; // Placeholder for profile editing
+import ProfileEdit from './pages/ProfileEdit.jsx';
 
 const App = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
-    const location = useLocation(); // Gets current URL location
+    // Renamed for clarity: desktop services dropdown is managed separately
+    const [isDesktopServicesDropdownOpen, setIsDesktopServicesDropdownOpen] = useState(false);
+    // NEW: State for mobile services dropdown (to manage its open/close state independently)
+    const [isMobileServicesDropdownOpen, setIsMobileServicesDropdownOpen] = useState(false);
+
+    const location = useLocation();
     const servicesRef = useRef(null); // Ref for desktop services dropdown
     const mobileMenuRef = useRef(null); // Ref for mobile menu container
+    // NEW: Ref for mobile services dropdown for height calculation
+    const mobileServicesDropdownRef = useRef(null);
 
     // Firebase User State
-    const [currentUser, setCurrentUser] = useState(null); // Stores Firebase user object
-    const [isAuthReady, setIsAuthReady] = useState(false); // To know when Firebase auth state is checked
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isAuthReady, setIsAuthReady] = useState(false);
 
     // Firebase Auth State Listener
     useEffect(() => {
@@ -38,7 +44,6 @@ const App = () => {
             setIsAuthReady(true);
             console.log("Auth state changed:", user ? user.uid : "No user");
         });
-        // Cleanup subscription on unmount
         return () => unsubscribe();
     }, []);
 
@@ -51,55 +56,52 @@ const App = () => {
         }
     };
 
-    // Toggles the main mobile menu open/closed state.
-    // It is directly attached to the mobile menu button's onClick.
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(prev => !prev);
-        // Ensure services dropdown is closed if mobile menu is toggled manually
-        setIsServicesDropdownOpen(false);
+        // When main mobile menu toggles, ensure both dropdowns are reset
+        setIsDesktopServicesDropdownOpen(false);
+        setIsMobileServicesDropdownOpen(false); // Reset mobile services dropdown too
     };
 
-    // Handles closing menus when clicking outside them (desktop services dropdown and mobile menu).
+    // Handles closing menus when clicking outside them
     useEffect(() => {
         const handleClickOutside = (event) => {
             // Close desktop services dropdown if click is outside of it
             if (servicesRef.current && !servicesRef.current.contains(event.target)) {
-                setIsServicesDropdownOpen(false);
+                setIsDesktopServicesDropdownOpen(false);
             }
+
             // Close mobile menu if open and click is outside of it AND not on the mobile menu button itself
             // We use event.target.closest to check if the click originated from the button or its children (like the SVG icon)
+            // This also handles closing the mobile services dropdown if the main mobile menu is closed externally
             if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) && !event.target.closest('#mobile-menu-button')) {
                 if (isMobileMenuOpen) {
                     setIsMobileMenuOpen(false);
-                    setIsServicesDropdownOpen(false); // Also close services dropdown if it was open within mobile menu
+                    setIsDesktopServicesDropdownOpen(false);
+                    setIsMobileServicesDropdownOpen(false); // Crucial: close mobile services dropdown too
                 }
             }
         };
-        // Add mousedown listener to the document
         document.addEventListener('mousedown', handleClickOutside);
-        // Cleanup function to remove the event listener on component unmount
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [servicesRef, mobileMenuRef, isMobileMenuOpen]); // Dependencies ensure listener updates if these refs/state change
+    }, [servicesRef, mobileMenuRef, isMobileMenuOpen]);
 
     // Centralized Anchor Scrolling Logic:
-    // This useEffect handles all scrolling to hash IDs (`#section-id`) and scrolling to top.
-    // It runs whenever the `location` object changes (i.e., on route changes or hash changes).
     useEffect(() => {
-        // Automatically close mobile menu and services dropdown on any navigation/hash change
-        // This is crucial for a smooth user experience
+        // Automatically close ALL menus on any navigation/hash change
         setIsMobileMenuOpen(false);
-        setIsServicesDropdownOpen(false);
+        setIsDesktopServicesDropdownOpen(false);
+        setIsMobileServicesDropdownOpen(false); // Ensure mobile services dropdown closes
 
         if (location.hash) {
-            const id = location.hash.substring(1); // Get the ID from the hash (e.g., "business-advisory")
+            const id = location.hash.substring(1);
             const element = document.getElementById(id);
 
             if (element) {
-                // Use requestAnimationFrame for smoother scrolling, ensures DOM is ready
                 requestAnimationFrame(() => {
-                    const headerOffset = 96; // Approximate height of your fixed header (6rem * 16px/rem = 96px)
+                    const headerOffset = 96;
                     const elementPosition = element.getBoundingClientRect().top + window.scrollY;
                     const offsetPosition = elementPosition - headerOffset;
 
@@ -107,25 +109,23 @@ const App = () => {
                         top: offsetPosition,
                         behavior: 'smooth'
                     });
-                    console.log(`Scrolling to #${id} with offset ${headerOffset}.`); // Debugging log
+                    console.log(`Scrolling to #${id} with offset ${headerOffset}.`);
                 });
             } else {
-                console.warn(`Element with ID '${id}' not found for scrolling.`); // Debugging log
+                console.warn(`Element with ID '${id}' not found for scrolling.`);
             }
         } else {
-            // Scroll to the top of the page if no hash is present (e.g., navigating to /home or /about)
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            console.log("Scrolling to top."); // Debugging log
+            console.log("Scrolling to top.");
         }
-    }, [location]); // Dependency array: Effect runs when 'location' object changes
-
+    }, [location]);
 
     const navLinks = [
         { path: '/', name: 'Home' },
         { path: '/about', name: 'About Us' },
         {
             name: 'Services',
-            path: '/services',
+            path: '/services', // This is the main /services page link
             dropdown: [
                 { path: '/services#business-advisory', name: 'Business Advisory' },
                 { path: '/services#project-management', name: 'Project Management' },
@@ -145,7 +145,6 @@ const App = () => {
         { path: '/contact', name: 'Contact Us' }
     ];
 
-    // Show a loading state until Firebase Auth is ready
     if (!isAuthReady) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -162,7 +161,6 @@ const App = () => {
                         <span className="text-2xl font-bold text-indigo-700">GoTalent NG</span>
                     </Link>
 
-                    {/* Mobile Menu Button (Hamburger) - Only visible on small screens (hidden on md and up) */}
                     <div className="md:hidden">
                         <button id="mobile-menu-button" onClick={toggleMobileMenu} className="text-gray-600 focus:outline-none focus:text-indigo-700">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -171,18 +169,15 @@ const App = () => {
                         </button>
                     </div>
 
-                    {/* Desktop Navigation Links - Hidden on small screens, displayed as flex on md and up */}
-                    {/* Added responsive space-x classes: smaller gap on medium screens, larger on large/xl screens */}
-                    {/* Added responsive text sizing for links */}
+                    {/* Desktop Navigation Links (unchanged) */}
                     <ul className="hidden md:flex flex-1 justify-end md:space-x-3 lg:space-x-5 xl:space-x-8 items-center">
                         {navLinks.map((link) => (
                             <li key={link.name} className="relative" ref={link.name === 'Services' ? servicesRef : null}>
                                 {link.dropdown ? (
-                                    // Parent "Services" link that triggers a dropdown
                                     <>
                                         <button
-                                            onClick={() => setIsServicesDropdownOpen(prev => !prev)}
-                                            onMouseEnter={() => setIsServicesDropdownOpen(true)}
+                                            onClick={() => setIsDesktopServicesDropdownOpen(prev => !prev)}
+                                            onMouseEnter={() => setIsDesktopServicesDropdownOpen(true)}
                                             className={`font-medium transition duration-300 ease-in-out flex items-center
                                                 ${location.pathname === link.path || link.dropdown.some(item => location.pathname === item.path.split('#')[0])
                                                     ? 'text-indigo-700 font-bold'
@@ -190,20 +185,20 @@ const App = () => {
                                                 md:text-xs lg:text-sm xl:text-base`}
                                         >
                                             {link.name}
-                                            <svg className={`ml-2 w-4 h-4 transition-transform duration-200 ${isServicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <svg className={`ml-2 w-4 h-4 transition-transform duration-200 ${isDesktopServicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                                             </svg>
                                         </button>
-                                        {isServicesDropdownOpen && (
+                                        {isDesktopServicesDropdownOpen && (
                                             <ul
-                                                onMouseLeave={() => setIsServicesDropdownOpen(false)}
+                                                onMouseLeave={() => setIsDesktopServicesDropdownOpen(false)}
                                                 className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 origin-top-left animate-fade-in"
                                             >
                                                 <li>
                                                     <Link
-                                                        to={link.path} // e.g., /services
+                                                        to={link.path}
                                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-700 transition duration-150 rounded-md"
-                                                        onClick={() => setIsServicesDropdownOpen(false)} // Close dropdown on click
+                                                        onClick={() => setIsDesktopServicesDropdownOpen(false)}
                                                     >
                                                         All Services
                                                     </Link>
@@ -211,10 +206,9 @@ const App = () => {
                                                 {link.dropdown.map((item) => (
                                                     <li key={item.path}>
                                                         <Link
-                                                            to={item.path} // e.g., /services#business-advisory
+                                                            to={item.path}
                                                             className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-700 transition duration-150 rounded-md"
-                                                            // Close dropdown on click
-                                                            onClick={() => { setIsServicesDropdownOpen(false); }}
+                                                            onClick={() => { setIsDesktopServicesDropdownOpen(false); }}
                                                         >
                                                             {item.name}
                                                         </Link>
@@ -224,7 +218,6 @@ const App = () => {
                                         )}
                                     </>
                                 ) : (
-                                    // Standard navigation link without a dropdown
                                     <Link
                                         to={link.path}
                                         className={`font-medium transition duration-300 ease-in-out
@@ -303,17 +296,23 @@ const App = () => {
 
                 {/* Mobile Navigation Menu - Visible ONLY on screens smaller than md */}
                 {/* This entire div is conditionally rendered based on isMobileMenuOpen */}
-                <div ref={mobileMenuRef} className={`md:hidden bg-white mt-2 py-2 shadow-lg rounded-lg mx-4 ${isMobileMenuOpen ? '' : 'hidden'}`}>
+                {/* Applied Tailwind classes for smooth height transition for the main mobile menu */}
+                <div
+                    ref={mobileMenuRef}
+                    className={`
+                        md:hidden bg-white mt-2 shadow-lg rounded-lg mx-4
+                        overflow-hidden transition-all duration-300 ease-in-out
+                        ${isMobileMenuOpen ? 'max-h-screen opacity-100 py-2' : 'max-h-0 opacity-0 py-0'}
+                    `}
+                >
                     <ul className="flex flex-col space-y-2 px-4">
                         {navLinks.map((link) => (
                             <React.Fragment key={link.name}>
                                 {link.dropdown ? (
                                     // Parent "Services" link in mobile, acts as a button to toggle its dropdown
-                                    <>
+                                    <li> {/* Wrap the button and ul in an li for consistent styling */}
                                         <button
-                                            onClick={() => {
-                                                setIsServicesDropdownOpen(prev => !prev);
-                                            }}
+                                            onClick={() => setIsMobileServicesDropdownOpen(prev => !prev)}
                                             className={`w-full text-left py-2 font-medium transition duration-300 ease-in-out flex items-center justify-between ${
                                                 location.pathname === link.path || link.dropdown.some(item => location.pathname === item.path.split('#')[0])
                                                     ? 'text-indigo-700 font-bold'
@@ -321,40 +320,45 @@ const App = () => {
                                             }`}
                                         >
                                             {link.name}
-                                            <svg className={`ml-2 w-4 h-4 transition-transform duration-200 ${isServicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <svg className={`ml-2 w-4 h-4 transition-transform duration-200 ${isMobileServicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                                             </svg>
                                         </button>
-                                        {isServicesDropdownOpen && (
-                                            <ul className="pl-4 border-l border-gray-200 mt-2 space-y-1">
-                                                {/* Re-added "All Services" link for mobile dropdown */}
-                                                <li>
+                                        {/* Mobile Services Dropdown */}
+                                        <ul
+                                            ref={mobileServicesDropdownRef} // Assign ref here
+                                            className={`
+                                                pl-4 border-l border-gray-200 mt-2 space-y-1
+                                                overflow-hidden transition-all duration-300 ease-in-out
+                                                ${isMobileServicesDropdownOpen ? 'max-h-screen opacity-100 py-2' : 'max-h-0 opacity-0 py-0'}
+                                            `}
+                                        >
+                                            <li>
+                                                <Link
+                                                    to={link.path} // e.g., /services
+                                                    className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-700 transition duration-150 rounded-md"
+                                                    onClick={() => {
+                                                        setIsMobileServicesDropdownOpen(false); // Close services dropdown
+                                                        toggleMobileMenu(); // Close main mobile menu
+                                                    }}
+                                                >
+                                                    All Services
+                                                </Link>
+                                            </li>
+                                            {link.dropdown.map((item) => (
+                                                <li key={item.path}>
                                                     <Link
-                                                        to={link.path} // e.g., /services
+                                                        to={item.path} // This links to /services#id
                                                         className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-700 transition duration-150 rounded-md"
-                                                        onClick={() => {
-                                                            setIsServicesDropdownOpen(false); // Close services dropdown
-                                                            toggleMobileMenu(); // Close main mobile menu
-                                                        }}
+                                                        // Close both services dropdown AND main mobile menu on click
+                                                        onClick={() => { setIsMobileServicesDropdownOpen(false); toggleMobileMenu(); }}
                                                     >
-                                                        All Services
+                                                        {item.name}
                                                     </Link>
                                                 </li>
-                                                {link.dropdown.map((item) => (
-                                                    <li key={item.path}>
-                                                        <Link
-                                                            to={item.path} // This links to /services#id
-                                                            className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-700 transition duration-150 rounded-md"
-                                                            // Close both services dropdown AND main mobile menu on click
-                                                            onClick={() => { setIsServicesDropdownOpen(false); toggleMobileMenu(); }}
-                                                        >
-                                                            {item.name}
-                                                        </Link>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </>
+                                            ))}
+                                        </ul>
+                                    </li>
                                 ) : (
                                     // Standard navigation link in mobile menu (no dropdown)
                                     <li>
@@ -427,6 +431,7 @@ const App = () => {
                         <li>
                             <Link
                                 to="/contact"
+                                onClick={toggleMobileMenu} // Close mobile menu on click
                                 className={`block py-2 font-medium transition duration-300 ease-in-out ${
                                     location.pathname === '/contact'
                                         ? 'text-indigo-700 font-bold'
