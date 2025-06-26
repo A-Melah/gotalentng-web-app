@@ -129,7 +129,7 @@ const App = () => {
                         behavior: 'smooth'
                     });
                     console.log(`Scrolling to #${id} with dynamic offset ${headerOffset}.`);
-                }, 100); // 100ms delay is usually sufficient
+                }, 50); // 100ms delay is usually sufficient
 
             } else {
                 console.warn(`Element with ID '${id}' not found for scrolling.`);

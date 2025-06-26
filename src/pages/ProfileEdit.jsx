@@ -209,6 +209,8 @@ const ProfileEdit = ({ currentUser, db }) => {
 
             // 1. Upload main files (Photo & CV)
             if (photoFile) {
+                {uploadProgress.photo > 0 && uploadProgress.photo < 100 && <progress value={uploadProgress.photo} max="100" className="w-full mt-2"/>}
+
                 setStatusMessage('Uploading profile photo...');
                 const result = await handleFileUpload(photoFile, 'photo', 'profile_photo');
                 if (result) {
@@ -218,6 +220,7 @@ const ProfileEdit = ({ currentUser, db }) => {
                 }
             }
             if (cvFile) {
+                {uploadProgress.cv > 0 && uploadProgress.cv < 100 && <progress value={uploadProgress.cv} max="100" className="w-full mt-2"/>}
                 setStatusMessage('Uploading CV...');
                 const result = await handleFileUpload(cvFile, 'cv', 'user_cv');
                 if (result) finalProfileData.cvUpload = { fileName: result.name, fileURL: result.url };
@@ -226,6 +229,7 @@ const ProfileEdit = ({ currentUser, db }) => {
             // 2. Upload portfolio images
             // ... (your existing portfolio upload logic is fine) ...
             const portfolioUploadPromises = Object.keys(portfolioFiles).map(async (index) => {
+                {uploadProgress[`portfolio_${index}`] > 0 && uploadProgress[`portfolio_${index}`] < 100 && <progress value={uploadProgress[`portfolio_${index}`]} max="100" className="w-full mt-2"/>}
                 setStatusMessage(`Uploading portfolio item ${parseInt(index) + 1}...`);
                 const file = portfolioFiles[index];
                 const result = await handleFileUpload(file, 'portfolio', `item_${index}`);
