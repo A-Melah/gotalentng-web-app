@@ -20,6 +20,7 @@ import Login from './pages/Login.jsx';
 import Profile from './pages/Profile.jsx';
 import ProfileEdit from './pages/ProfileEdit.jsx';
 import TalentDirectory from './pages/TalentDirectory.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
 
 const App = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -491,6 +492,7 @@ const App = () => {
                     {/* Auth & Profile Routes */}
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     {/* Pass currentUser and db to Profile/ProfileEdit */}
                     <Route path="/profile" element={<Profile currentUser={currentUser} db={db} />} />
                     <Route path="/profile/edit" element={<ProfileEdit currentUser={currentUser} db={db} />} />
