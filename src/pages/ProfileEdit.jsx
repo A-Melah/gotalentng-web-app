@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+// --- NEW IMPORT: Use the installed library for countries and cities ---
+import { Country, City } from 'country-state-city';
 
 // --- Helper function to update nested state properties immutably ---
 const updateNestedProperty = (obj, path, value) => {
     const keys = path.split('.');
-    const newObj = JSON.parse(JSON.stringify(obj)); // Deep copy for safety
+    const newObj = JSON.parse(JSON.stringify(obj));
     let current = newObj;
     for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
@@ -38,75 +40,71 @@ const ProfileEdit = ({ currentUser, db }) => {
     const [error, setError] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
     const [skillInput, setSkillInput] = useState('');
+    // NEW: States for the country/city dropdowns
+    const [allCountries, setAllCountries] = useState([]);
+    const [citiesForSelectedCountry, setCitiesForSelectedCountry] = useState([]);
 
     // --- State for File Uploads ---
     const [photoFile, setPhotoFile] = useState(null);
     const [cvFile, setCvFile] = useState(null);
-    const [portfolioFiles, setPortfolioFiles] = useState({}); // { index: file }
-    const [uploadProgress, setUploadProgress] = useState({}); // { photo: 0, cv: 0, portfolio_0: 50 }
+    const [portfolioFiles, setPortfolioFiles] = useState({});
+    const [uploadProgress, setUploadProgress] = useState({});
 
     const storage = getStorage();
 
-    // --- EFFECT: Fetch user profile data from both collections ---
-    // This now fetches both private and public data and merges it into one state object.
+    // --- EFFECT 1: Fetch countries and initialize cities on mount ---
     useEffect(() => {
-        if (!currentUser) {
-            navigate('/login');
-            return;
-        }
+        // Fetch all countries once when the component mounts
+        const countries = Country.getAllCountries();
+        setAllCountries(countries);
 
-        setIsLoading(true);
-        // References to both Firestore documents
-        const userProfileRef = doc(db, "userProfiles", currentUser.uid);
-        const publicProfileRef = doc(db, "public_profiles", currentUser.uid);
-
-        const fetchProfile = async () => {
+        // Fetch user data and initialize the city dropdown
+        const fetchProfileData = async () => {
+            if (!currentUser) {
+                navigate('/login');
+                return;
+            }
+            setIsLoading(true);
+            const userProfileRef = doc(db, "userProfiles", currentUser.uid);
+            const publicProfileRef = doc(db, "public_profiles", currentUser.uid);
             try {
-                // Fetch both documents in parallel for efficiency
                 const [userDocSnap, publicDocSnap] = await Promise.all([
                     getDoc(userProfileRef),
                     getDoc(publicProfileRef)
                 ]);
 
-                // Initialize a base profile structure
                 let initialProfileData = {
                     basicDetails: { name: "", photoURL: "", titleTagline: "", location: { city: "", country: "" }, contact: { email: currentUser.email || "", phone: "", linkedin: "", github: "", website: "" } },
                     bioSkills: { bio: "", skills: [] },
-                    experience: [],
-                    education: [],
-                    portfolio: [],
-                    cvUpload: { fileName: "", fileURL: "" },
+                    experience: [], education: [], portfolio: [], cvUpload: { fileName: "", fileURL: "" },
                     availabilityRate: { status: "Not Set", hourlyRate: "", projectRate: "", currency: "USD" },
-                    // These fields are for the full profile, but not needed for the public view
                     reviewsRatings: { averageRating: 0, breakdown: {}, excerpts: [] },
                     metricsVisibility: { profileViews: 0, lastActive: new Date().toISOString(), endorsementBadges: [] }
                 };
 
-                // Merge with comprehensive user profile data if it exists
                 if (userDocSnap.exists()) {
                     initialProfileData = { ...initialProfileData, ...userDocSnap.data() };
                 }
-
-                // Merge with public profile data if it exists.
-                // We'll store it under a 'publicDetails' key for clarity.
                 if (publicDocSnap.exists()) {
                     initialProfileData.publicDetails = publicDocSnap.data();
                 } else {
-                    // Initialize public details with defaults if not found
                     initialProfileData.publicDetails = {
-                        displayName: currentUser.displayName || "",
-                        photoURL: "",
-                        headline: "",
-                        skills: [],
-                        bio: "",
-                        location: { city: "", country: "" },
-                        experienceLevel: 'Not Set',
-                        uid: currentUser.uid,
+                        displayName: currentUser.displayName || "", photoURL: "", headline: "", skills: [], bio: "",
+                        location: { city: "", country: "" }, experienceLevel: 'Not Set', uid: currentUser.uid,
                     };
                 }
-                
-                // Set the combined data to state
+
+                if (!initialProfileData.basicDetails.name) initialProfileData.basicDetails.name = currentUser.displayName || "";
+                if (!initialProfileData.basicDetails.contact.email) initialProfileData.basicDetails.contact.email = currentUser.email || "";
+
                 setProfileData(initialProfileData);
+
+                // --- NEW LOGIC: Initialize cities list based on fetched country ---
+                const initialCountryCode = initialProfileData.basicDetails.location?.country;
+                if (initialCountryCode) {
+                    const cities = City.getCitiesOfCountry(initialCountryCode);
+                    if (cities) setCitiesForSelectedCountry(cities);
+                }
 
             } catch (err) {
                 console.error("Error fetching profile:", err);
@@ -116,17 +114,30 @@ const ProfileEdit = ({ currentUser, db }) => {
             }
         };
 
-        fetchProfile();
+        fetchProfileData();
     }, [currentUser, db, navigate]);
 
 
-    // --- Handlers ---
+    // --- NEW HANDLER: For the country dropdown ---
+    const handleCountryChange = (e) => {
+        const selectedCountryCode = e.target.value;
+        // 1. Update the country in the state using the country's ISO code
+        setProfileData(prev => updateNestedProperty(prev, 'basicDetails.location.country', selectedCountryCode));
+        
+        // 2. Update the list of cities for the new country
+        const cities = City.getCitiesOfCountry(selectedCountryCode);
+        setCitiesForSelectedCountry(cities || []);
+        
+        // 3. Reset the city to an empty string to force a new selection
+        setProfileData(prev => updateNestedProperty(prev, 'basicDetails.location.city', ''));
+    };
+
+    // --- Handlers (mostly unchanged) ---
     const handleChange = (e) => {
         const { name, value } = e.target;
         setProfileData(prev => updateNestedProperty(prev, name, value));
     };
     
-    // --- Array Field Handlers (unchanged) ---
     const handleAddSkill = () => {
         if (skillInput && !profileData.bioSkills.skills.includes(skillInput)) {
             const newSkills = [...profileData.bioSkills.skills, skillInput];
@@ -145,8 +156,7 @@ const ProfileEdit = ({ currentUser, db }) => {
             ? { title: '', company: '', startDate: '', endDate: '', description: '' }
             : arrayName === 'education'
             ? { school: '', degree: '', startDate: '', endDate: '' }
-            : { title: '', description: '', imageURL: '', projectLink: '' }; // Portfolio
-        
+            : { title: '', description: '', imageURL: '', projectLink: '' };
         setProfileData(prev => ({ ...prev, [arrayName]: [...(prev[arrayName] || []), newItem] }));
     };
     
@@ -162,33 +172,26 @@ const ProfileEdit = ({ currentUser, db }) => {
         setProfileData(prev => ({ ...prev, [arrayName]: newArray }));
     };
     
-    // --- File Handlers (unchanged) ---
     const handlePortfolioFileChange = (e, index) => {
         const file = e.target.files[0];
-        if (file) {
-            setPortfolioFiles(prev => ({ ...prev, [index]: file }));
-        }
+        if (file) setPortfolioFiles(prev => ({ ...prev, [index]: file }));
     };
 
     const handleFileUpload = (file, type, identifier) => {
         if (!file) return Promise.resolve(null);
-        
         const filePath = `${currentUser.uid}/${type}/${identifier}_${file.name}`;
         const storageRef = ref(storage, filePath);
         const uploadTask = uploadBytesResumable(storageRef, file);
-
         return new Promise((resolve, reject) => {
             uploadTask.on('state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     const progressKey = type === 'portfolio' ? `portfolio_${identifier}` : type;
                     setUploadProgress(prev => ({ ...prev, [progressKey]: progress }));
-                },
-                (error) => {
+                }, (error) => {
                     console.error(`Upload failed for ${type}:`, error);
                     reject(error);
-                },
-                () => {
+                }, () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                         resolve({ url: downloadURL, name: file.name });
                     });
@@ -197,77 +200,52 @@ const ProfileEdit = ({ currentUser, db }) => {
         });
     };
 
-    // --- REFINED: Save Profile Handler ---
+    // --- Save Profile Handler (mostly unchanged) ---
     const handleSaveProfile = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        setError(''); // Clear previous errors
-        setStatusMessage('Saving...');
-        
+        setIsLoading(true); setError(''); setStatusMessage('Saving...');
         try {
             let finalProfileData = { ...profileData };
-
-            // 1. Upload main files (Photo & CV)
             if (photoFile) {
-                {uploadProgress.photo > 0 && uploadProgress.photo < 100 && <progress value={uploadProgress.photo} max="100" className="w-full mt-2"/>}
-
                 setStatusMessage('Uploading profile photo...');
                 const result = await handleFileUpload(photoFile, 'photo', 'profile_photo');
                 if (result) {
-                    // Update the photoURL in both the full profile and the public details state
                     finalProfileData.basicDetails.photoURL = result.url;
                     finalProfileData.publicDetails.photoURL = result.url;
                 }
             }
             if (cvFile) {
-                {uploadProgress.cv > 0 && uploadProgress.cv < 100 && <progress value={uploadProgress.cv} max="100" className="w-full mt-2"/>}
                 setStatusMessage('Uploading CV...');
                 const result = await handleFileUpload(cvFile, 'cv', 'user_cv');
                 if (result) finalProfileData.cvUpload = { fileName: result.name, fileURL: result.url };
             }
-
-            // 2. Upload portfolio images
-            // ... (your existing portfolio upload logic is fine) ...
             const portfolioUploadPromises = Object.keys(portfolioFiles).map(async (index) => {
-                {uploadProgress[`portfolio_${index}`] > 0 && uploadProgress[`portfolio_${index}`] < 100 && <progress value={uploadProgress[`portfolio_${index}`]} max="100" className="w-full mt-2"/>}
                 setStatusMessage(`Uploading portfolio item ${parseInt(index) + 1}...`);
-                const file = portfolioFiles[index];
-                const result = await handleFileUpload(file, 'portfolio', `item_${index}`);
-                if (result) {
-                    finalProfileData.portfolio[index].imageURL = result.url;
-                }
+                const file = portfolioFiles[index]; const result = await handleFileUpload(file, 'portfolio', `item_${index}`);
+                if (result) finalProfileData.portfolio[index].imageURL = result.url;
             });
             await Promise.all(portfolioUploadPromises);
             
-            // 3. Save the comprehensive data to the 'userProfiles' collection
             setStatusMessage('Saving full profile data...');
             const userProfileRef = doc(db, "userProfiles", currentUser.uid);
             await setDoc(userProfileRef, finalProfileData, { merge: true });
 
-            // 4. Extract and save public data to the 'public_profiles' collection
             setStatusMessage('Updating public profile...');
             const publicProfileRef = doc(db, 'public_profiles', currentUser.uid);
-            
             const publicProfileData = {
               uid: currentUser.uid,
               displayName: finalProfileData.basicDetails.name,
               photoURL: finalProfileData.basicDetails.photoURL,
-              headline: finalProfileData.basicDetails.titleTagline, // Using 'titleTagline' as the public 'headline'
+              headline: finalProfileData.basicDetails.titleTagline,
               skills: finalProfileData.bioSkills.skills,
               bio: finalProfileData.bioSkills.bio,
-              location: finalProfileData.basicDetails.location.city, // Only save city for public view
+              location: finalProfileData.basicDetails.location.city,
               experienceLevel: finalProfileData.publicDetails.experienceLevel,
               lastActive: new Date().toISOString(),
-              // No contact details, portfolio links, or CV are included here for privacy
             };
-
             await setDoc(publicProfileRef, publicProfileData, { merge: true });
             
-            setProfileData(finalProfileData);
-            setPhotoFile(null);
-            setCvFile(null);
-            setPortfolioFiles({});
-            
+            setProfileData(finalProfileData); setPhotoFile(null); setCvFile(null); setPortfolioFiles({});
             setStatusMessage("Profile saved successfully!");
             setTimeout(() => navigate('/profile'), 1500);
         } catch (err) {
@@ -275,8 +253,7 @@ const ProfileEdit = ({ currentUser, db }) => {
             setError("Failed to save profile. An error occurred. Please check console for details.");
             setStatusMessage('');
         } finally {
-            setIsLoading(false);
-            setUploadProgress({});
+            setIsLoading(false); setUploadProgress({});
         }
     };
     
@@ -300,16 +277,53 @@ const ProfileEdit = ({ currentUser, db }) => {
                     <section>
                         <h2 className="text-2xl font-semibold mb-6 border-b pb-3">Basic Details & Contact (Public)</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Full Name will be the public display name */}
                             <InputField label="Full Name" name="basicDetails.name" value={profileData.basicDetails.name} onChange={handleChange} isRequired />
-                            {/* This is the public headline for the talent page */}
                             <InputField label="Headline / Title" name="basicDetails.titleTagline" value={profileData.basicDetails.titleTagline} onChange={handleChange} placeholder="e.g., Senior DevOps Engineer" isRequired />
-                            {/* Location fields are used for the public profile */}
-                            <InputField label="City" name="basicDetails.location.city" value={profileData.basicDetails.location?.city} onChange={handleChange} isRequired />
-                            <InputField label="Country" name="basicDetails.basicDetails.location.country" value={profileData.basicDetails.location?.country} onChange={handleChange} isRequired />
                             
-                            {/* New dropdown for Experience Level */}
+                            {/* --- UPDATED: Country Dropdown --- */}
                             <div>
+                                <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Country <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    id="country"
+                                    name="basicDetails.location.country"
+                                    value={profileData.basicDetails.location?.country || ''}
+                                    onChange={handleCountryChange} // Use the new handler
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                >
+                                    <option value="" disabled>Select a country</option>
+                                    {allCountries.map(country => (
+                                        <option key={country.isoCode} value={country.isoCode}>{country.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            {/* --- UPDATED: City Dropdown (Dependent) --- */}
+                            <div>
+                                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                                    City <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    id="city"
+                                    name="basicDetails.location.city"
+                                    value={profileData.basicDetails.location?.city || ''}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    required
+                                    disabled={citiesForSelectedCountry.length === 0}
+                                >
+                                    <option value="" disabled>
+                                        {profileData.basicDetails.location?.country ? "Select a city" : "Select a country first"}
+                                    </option>
+                                    {citiesForSelectedCountry.map(city => (
+                                        <option key={city.name} value={city.name}>{city.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <div className="md:col-span-2">
                                 <label htmlFor="experienceLevel" className="block text-sm font-medium text-gray-700 mb-1">
                                     Experience Level <span className="text-red-500">*</span>
                                 </label>
@@ -330,7 +344,6 @@ const ProfileEdit = ({ currentUser, db }) => {
                                 </select>
                             </div>
 
-                            {/* Private contact details below */}
                             <h3 className="md:col-span-2 text-lg font-semibold mt-6 mb-2">Private Contact Details (Not Public)</h3>
                             <InputField label="Contact Email" name="basicDetails.contact.email" value={profileData.basicDetails.contact?.email} readOnly />
                             <InputField label="Phone (Optional)" name="basicDetails.contact.phone" value={profileData.basicDetails.contact?.phone} onChange={handleChange} />
