@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { auth, db } from './firebase-config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import fulllogo from './assets/full logo dark.svg'; // Import the logo
 
 // Import all page components from the 'pages' directory.
 import Home from './pages/Home.jsx';
@@ -197,7 +198,7 @@ const App = () => {
                 <nav className="container mx-auto px-4 flex justify-between items-center">
                     <Link to="/" className="flex items-center space-x-2">
                         {/* Logo svg */}
-                        <img src="\src\assets\full logo dark.svg" alt="gotalent logo" className="h-8" />
+                        <img src={fulllogo} alt="gotalent logo" className="h-8" />
                     </Link>
 
                     {/* Mobile Menu Button (Hamburger) */}
