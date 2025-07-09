@@ -12,19 +12,34 @@
       generate the optimized CSS and link it automatically.
     -->
     <style>
-      /* Ensure Inter font is applied globally */
+      /*
+        @font-face rule for 'Nourd' font.
+        You MUST replace the 'src' URLs with the actual paths to your Nourd font files.
+        Place your Nourd font files (e.g., .woff2, .woff) in a public/fonts/ directory
+        or similar location accessible by your web server.
+      */
+      @font-face {
+        font-family: 'Nourd';
+        src: url('/gotalentng/src/Nourd Font/woff2') format('woff2'), /* Example path, adjust as needed */
+             url('/gotalentng/src/Nourd Font/woff') format('woff');  /* Example path, adjust as needed */
+        font-weight: normal; /* Adjust if you have different weights like bold, light */
+        font-style: normal;
+        font-display: swap; /* Ensures text is visible while font loads */
+      }
+
+      /* Ensure Poppins font is applied globally as the default body font */
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Poppins', sans-serif; /* Applied Poppins as the default */
       }
       /* Hide the hidden Netlify forms visually */
       .netlify-hidden-form {
         display: none;
       }
     </style>
-    <!-- Preconnect to Google Fonts for Inter -->
+    <!-- Preconnect to Google Fonts for Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>

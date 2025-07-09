@@ -1,4 +1,3 @@
-// src/pages/TalentDirectory.jsx
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config'; // Import your Firestore instance
 import { collection, getDocs } from 'firebase/firestore';
@@ -42,13 +41,16 @@ const TalentDirectory = () => {
     });
 
     if (loading) {
-        return <div className="flex justify-center items-center min-h-screen">Loading talents...</div>;
+        // Loading text color to blue, font to Poppins
+        return <div className="flex justify-center items-center min-h-screen text-blue font-poppins">Loading talents...</div>;
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold text-center text-indigo-700 mb-8">Discover Top Talents</h1>
-            
+        // Apply Poppins globally to the page, background to beige-3
+        <div className="container mx-auto px-4 py-8 bg-beige-3 font-poppins">
+            {/* Main heading font to Nourd, text to blue */}
+            <h1 className="text-4xl font-bold text-center text-blue mb-8 font-nourd">Discover Top Talents</h1>
+
             {/* Search Bar */}
             <div className="mb-8 max-w-2xl mx-auto">
                 <input
@@ -56,7 +58,8 @@ const TalentDirectory = () => {
                     placeholder="Search by skill (e.g., DevOps, React, Cybersecurity)"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-4 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    // Input border to beige-2, placeholder to beige-1, focus ring to blue
+                    className="w-full p-4 border border-beige-2 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue transition-all text-green-1 placeholder-beige-1"
                 />
             </div>
 
@@ -64,42 +67,51 @@ const TalentDirectory = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredTalents.length > 0 ? (
                     filteredTalents.map(talent => (
+                        // Card background to custom white, shadow remains
                         <div key={talent.id} className="bg-white rounded-lg shadow-lg overflow-hidden p-6 text-center transform hover:scale-105 transition-transform duration-300">
                             {/* Profile Photo */}
                             <img
-                                src={talent.photoURL || 'https://via.placeholder.com/150'} // Use a placeholder if no photo
+                                src={talent.photoURL || 'https://placehold.co/150x150/d8cab7/2d3e48?text=No+Photo'} // Use a placeholder if no photo
                                 alt={`${talent.displayName}'s photo`}
-                                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-indigo-200"
+                                // Border to beige-2
+                                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-beige-2"
                             />
-                            
+
                             {/* Basic Details */}
-                            <h2 className="text-xl font-semibold text-gray-900">{talent.displayName}</h2>
-                            <p className="text-indigo-600 font-medium mb-2">{talent.headline || 'Talent'}</p>
-                            <p className="text-gray-500 text-sm mb-4">{talent.location || 'Location not specified'}</p>
-                            
+                            {/* Name text to green-1, font to Nourd */}
+                            <h2 className="text-xl font-semibold text-green-1 font-nourd">{talent.displayName}</h2>
+                            {/* Headline text to blue */}
+                            <p className="text-blue font-medium mb-2">{talent.headline || 'Talent'}</p>
+                            {/* Location text to green-2 */}
+                            <p className="text-green-2 text-sm mb-4">{talent.location || 'Location not specified'}</p>
+
                             {/* Skills */}
                             <div className="flex flex-wrap justify-center gap-2 mb-4">
                                 {talent.skills?.map((skill, index) => (
-                                    <span key={index} className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                    // Skill tag background to beige-3, text to blue
+                                    <span key={index} className="bg-beige-3 text-blue text-xs font-semibold px-2.5 py-0.5 rounded-full">
                                         {skill}
                                     </span>
                                 ))}
                             </div>
-                            
+
                             {/* Bio */}
-                            <p className="text-gray-600 text-sm italic mb-4 line-clamp-3">{talent.bio}</p>
+                            {/* Bio text to green-1 */}
+                            <p className="text-green-1 text-sm italic mb-4 line-clamp-3">{talent.bio}</p>
 
                             {/* Request Button */}
-                            <Link 
+                            <Link
                                 to={`/talent-request?talentId=${talent.id}`}
-                                className="inline-block bg-indigo-600 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-700 transition duration-300"
+                                // Button background to blue, text to custom white, hover background to green-1
+                                className="inline-block bg-blue text-white font-bold py-2 px-6 rounded-full hover:bg-green-1 transition duration-300"
                             >
                                 Request Talent
                             </Link>
                         </div>
                     ))
                 ) : (
-                    <div className="col-span-full text-center text-gray-500 py-10">
+                    // No talents found text to green-2
+                    <div className="col-span-full text-center text-green-2 py-10">
                         No talents found matching your search.
                     </div>
                 )}

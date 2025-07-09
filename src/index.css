@@ -3,12 +3,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Google Fonts Import for Inter */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/*
+  Removed Google Fonts Import for Inter, as per brand guide.
+  Poppins is imported in index.html and applied via Tailwind classes.
+*/
 
-/* Custom global styles */
+/*
+  If 'Nourd' font files are available and you're not loading them via index.html,
+  you would typically include an @font-face rule here.
+  Example (replace with actual font file paths and formats):
+  @font-face {
+    font-family: 'Nourd';
+    src: url('/fonts/Nourd-Regular.woff2') format('woff2'),
+         url('/fonts/Nourd-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+*/
+
+/*
+  Removed global body font-family to rely on Tailwind's utility classes
+  (e.g., font-poppins on the root App component) and the font import in index.html.
+*/
 body {
-  font-family: 'Inter', sans-serif;
+  /* font-family: 'Inter', sans-serif;  -- Removed */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

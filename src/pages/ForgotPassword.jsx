@@ -1,4 +1,3 @@
-// src/pages/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase-config'; // Import your auth instance
@@ -27,7 +26,7 @@ const ForgotPassword = () => {
             await sendPasswordResetEmail(auth, email);
             setMessage('A password reset link has been sent to your email. You will be redirected to the login page shortly.');
             console.log('Password reset email sent to:', email);
-            
+
             // Redirect to login page after a delay
             setTimeout(() => {
                 navigate('/login');
@@ -51,24 +50,29 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        // Apply Poppins globally to the page, background to beige-3
+        <div className="flex items-center justify-center min-h-screen bg-beige-3 py-12 px-4 sm:px-6 lg:px-8 font-poppins">
             <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
                 <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    {/* Heading font to Nourd, text to green-1 */}
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-green-1 font-nourd">
                         Forgot Your Password?
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
+                    {/* Paragraph text to green-1 */}
+                    <p className="mt-2 text-center text-sm text-green-1">
                         Enter your email to receive a password reset link.
                     </p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handlePasswordReset}>
                     {error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        // Error message background to beige-1, border to beige-1, text to black
+                        <div className="bg-beige-1 border border-beige-1 text-black px-4 py-3 rounded relative" role="alert">
                             <span className="block sm:inline">{error}</span>
                         </div>
                     )}
                     {message && (
-                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        // Success message background to green-3, border to green-3, text to green-1
+                        <div className="bg-green-3 border border-green-3 text-green-1 px-4 py-3 rounded relative" role="alert">
                             <span className="block sm:inline">{message}</span>
                         </div>
                     )}
@@ -82,7 +86,8 @@ const ForgotPassword = () => {
                                 type="email"
                                 autoComplete="email"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                // Input border to beige-2, placeholder to beige-1, text to green-1, focus ring to blue, focus border to blue
+                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-beige-2 placeholder-beige-1 text-green-1 focus:outline-none focus:ring-blue focus:border-blue focus:z-10 sm:text-sm"
                                 placeholder="Enter your email address"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -94,10 +99,12 @@ const ForgotPassword = () => {
                     <div>
                         <button
                             type="submit"
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            // Button background to blue, text to custom white, hover background to green-1, focus ring to blue
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue hover:bg-green-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isLoading}
                         >
                             {isLoading ? (
+                                // Spinner color to custom white
                                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -108,7 +115,8 @@ const ForgotPassword = () => {
                     </div>
                 </form>
                 <div className="text-sm text-center mt-4">
-                    <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                    {/* Link text to blue, hover text to green-1 */}
+                    <Link to="/login" className="font-medium text-blue hover:text-green-1">
                         &larr; Back to Login
                     </Link>
                 </div>
