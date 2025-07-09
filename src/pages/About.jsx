@@ -25,7 +25,7 @@ const About = () => {
                         </div>
                         <div className="md:order-1">
                             {/* Placeholder image for illustration */}
-                            <img src="\src\assets\mockup wall.png" alt="GoTalent NG Team" className="rounded-lg shadow-xl" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/154270/f0f0f0?text=GoTalent+NG"; }} />
+                            <img src="src/assets/mockup wall.png" alt="GoTalent NG Team" className="rounded-lg shadow-xl" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/154270/f0f0f0?text=GoTalent+NG"; }} />
                         </div>
                     </div>
                 </section>
