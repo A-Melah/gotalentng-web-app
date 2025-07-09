@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import mockupWall from '../assets/mockup wall.png'; // Placeholder image for the team section
 
 const About = () => {
     return (
@@ -26,7 +25,7 @@ const About = () => {
                         </div>
                         <div className="md:order-1">
                             {/* Placeholder image for illustration */}
-                            <img src={mockupWall} alt="GoTalent NG Team" className="rounded-lg shadow-xl" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/154270/f0f0f0?text=GoTalent+NG"; }} />
+                            <img src="./mockup-wall.png" alt="GoTalent NG Team" className="rounded-lg shadow-xl" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/154270/f0f0f0?text=GoTalent+NG"; }} />
                         </div>
                     </div>
                 </section>

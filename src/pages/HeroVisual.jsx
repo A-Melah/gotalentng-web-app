@@ -1,6 +1,4 @@
 import React from 'react';
-import profile1 from '../assets/profile1.png'; // Placeholder for a professional person
-import profile2 from '../assets/profile2.png'; // Placeholder for another professional
 
 const HeroVisual = () => {
   return (
@@ -14,7 +12,7 @@ const HeroVisual = () => {
                     bg-gradient-to-br from-purple-500 to-blue-500 p-0.5 rounded-3xl overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-3xl overflow-hidden">
             <img
-              src={profile1}
+              src="./profile1.png"
               alt="Talent A"
               className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300"
             />
@@ -29,7 +27,7 @@ const HeroVisual = () => {
                     bg-gradient-to-br from-green-500 to-teal-500 p-0.5 rounded-3xl overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-3xl overflow-hidden">
             <img
-              src={profile2}
+              src="./profile2.png"
               alt="Talent B"
               className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300"
             />

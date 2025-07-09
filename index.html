@@ -2,30 +2,78 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./public/logomark Dark 2.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GoTalent NG</title>
     <!--
       For production, Tailwind CSS should be processed and optimized via a build tool (like Vite/PostCSS).
       The CDN link is suitable for development/prototyping but not for a production-ready build
-      due to file size and lack of purging. Your build process (npm run build) will
+      due to file size and lack of purging. Your build process (npm build) will
       generate the optimized CSS and link it automatically.
     -->
     <style>
       /*
         @font-face rule for 'Nourd' font.
-        You MUST replace the 'src' URLs with the actual paths to your Nourd font files.
-        Place your Nourd font files (e.g., .woff2, .woff) in a public/fonts/ directory
-        or similar location accessible by your web server.
+        Paths updated based on your provided file structure: public/fonts/
+        Note: It's generally recommended to use .woff2 and .woff formats for web fonts for better performance and browser support.
+        If you only have .ttf files, consider converting them or adjust the format() accordingly.
       */
       @font-face {
         font-family: 'Nourd';
-        src: url('/gotalentng/src/Nourd Font/woff2') format('woff2'), /* Example path, adjust as needed */
-             url('/gotalentng/src/Nourd Font/woff') format('woff');  /* Example path, adjust as needed */
-        font-weight: normal; /* Adjust if you have different weights like bold, light */
+        /* Corrected paths based on your latest screenshot: public/fonts/ */
+        src: url('/fonts/nourd_regular.woff2') format('woff2'),
+             url('/fonts/nourd_regular.woff') format('woff');
+        font-weight: normal; /* This applies to nourd_regular.ttf/woff/woff2 */
         font-style: normal;
         font-display: swap; /* Ensures text is visible while font loads */
       }
+
+      /* Add other Nourd font weights if you have them and want to use them */
+      @font-face {
+        font-family: 'Nourd';
+        src: url('/fonts/nourd_bold.woff2') format('woff2'),
+             url('/fonts/nourd_bold.woff') format('woff');
+        font-weight: bold; /* Corresponds to nourd_bold.ttf/woff/woff2 */
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Nourd';
+        src: url('/fonts/nourd_light.woff2') format('woff2'),
+             url('/fonts/nourd_light.woff') format('woff');
+        font-weight: 300; /* Assuming light corresponds to 300 */
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Nourd';
+        src: url('/fonts/nourd_medium.woff2') format('woff2'),
+             url('/fonts/nourd_medium.woff') format('woff');
+        font-weight: 500; /* Assuming medium corresponds to 500 */
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Nourd';
+        src: url('/fonts/nourd_semi_bold.woff2') format('woff2'),
+             url('/fonts/nourd_semi_bold.woff') format('woff');
+        font-weight: 600; /* Assuming semi_bold corresponds to 600 */
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Nourd';
+        src: url('/fonts/nourd_heavy.woff2') format('woff2'),
+             url('/fonts/nourd_heavy.woff') format('woff');
+        font-weight: 900; /* Assuming heavy corresponds to 900 */
+        font-style: normal;
+        font-display: swap;
+      }
+
 
       /* Ensure Poppins font is applied globally as the default body font */
       body {

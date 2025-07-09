@@ -1,28 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { auth, db } from './firebase-config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import fulllogo from './assets/full logo dark.svg'; // Import the logo
 
-// Import all page components from the 'pages' directory.
-import Home from './pages/Home.jsx';
-import About from './pages/About.jsx';
-import Services from './pages/Services.jsx';
-import Trainings from './pages/Trainings.jsx'; // Updated from TrainingRegistration
-import TalentRequest from './pages/TalentRequest.jsx';
-// import WhyChooseUs from './pages/WhyChooseUs.jsx'; // Removed as it's merged into About
-import ContactUs from './pages/ContactUs.jsx';
-import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
-import TermsOfService from './pages/TermsOfService.jsx';
-
-// NEW: Import new auth and profile pages
-import Register from './pages/Register.jsx';
-import Login from './pages/Login.jsx';
-import Profile from './pages/Profile.jsx';
-import ProfileEdit from './pages/ProfileEdit.jsx';
-import TalentDirectory from './pages/TalentDirectory.jsx';
-import ForgotPassword from './pages/ForgotPassword.jsx';
-import ThankYou from './pages/ThankYou.jsx'; // Added ThankYou page import
+// --- Dynamically import all page components for code splitting ---
+// This tells React to only load the component's code when it's actually needed,
+// which helps reduce the initial bundle size and improve load times.
+const Home = lazy(() => import('./pages/Home.jsx'));
+const About = lazy(() => import('./pages/About.jsx'));
+const Services = lazy(() => import('./pages/Services.jsx'));
+const Trainings = lazy(() => import('./pages/Trainings.jsx')); // Updated from TrainingRegistration
+const TalentRequest = lazy(() => import('./pages/TalentRequest.jsx'));
+const ContactUs = lazy(() => import('./pages/ContactUs.jsx'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy.jsx'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService.jsx'));
+const Register = lazy(() => import('./pages/Register.jsx'));
+const Login = lazy(() => import('./pages/Login.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
+const ProfileEdit = lazy(() => import('./pages/ProfileEdit.jsx'));
+const TalentDirectory = lazy(() => import('./pages/TalentDirectory.jsx'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
+const ThankYou = lazy(() => import('./pages/ThankYou.jsx'));
 
 const App = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -197,8 +195,10 @@ const App = () => {
             <header ref={headerRef} className="bg-white shadow-md py-4 z-50 sticky top-0">
                 <nav className="container mx-auto px-4 flex justify-between items-center">
                     <Link to="/" className="flex items-center space-x-2">
-                        {/* Logo svg */}
-                        <img src={fulllogo} alt="gotalent logo" className="h-8" />
+                        {/* Logo text to blue, font to Nourd. Replace with SVG if available. */}
+                        {/* <span className="text-2xl font-bold text-blue font-nourd">gotalent</span> */}
+                        {/* If you have an SVG logo, replace the <span> with an <img> tag: */}
+                        <img src="/full-logo-dark.svg" alt="gotalent logo" className="h-8" />
                     </Link>
 
                     {/* Mobile Menu Button (Hamburger) */}
@@ -504,27 +504,36 @@ const App = () => {
             </header>
 
             <main className="flex-grow">
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/services" element={<Services />} />
-                    <Route path="/training" element={<Trainings />} /> {/* Updated component name */}
-                    <Route path="/talent-request" element={<TalentRequest />} />
-                    {/* Removed WhyChooseUs route as it's merged into About */}
-                    <Route path="/contact" element={<ContactUs />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/thank-you" element={<ThankYou />} />
-                    {/* Auth & Profile Routes */}
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    {/* Pass currentUser and db to Profile/ProfileEdit */}
-                    <Route path="/profile" element={<Profile currentUser={currentUser} db={db} />} />
-                    <Route path="/profile/edit" element={<ProfileEdit currentUser={currentUser} db={db} />} />
-                    <Route path="/talents" element={<TalentDirectory />} />
-                    {/* Fallback route for 404 */}
-                </Routes>
+                {/*
+                    Suspense is used here to show a fallback while the lazy-loaded components are loading.
+                    You can customize the fallback UI as needed.
+                */}
+                <Suspense fallback={
+                    <div className="flex justify-center items-center min-h-screen bg-beige-3 font-poppins">
+                        <div className="text-blue text-xl font-semibold">Loading page...</div>
+                    </div>
+                }>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/services" element={<Services />} />
+                        <Route path="/training" element={<Trainings />} />
+                        <Route path="/talent-request" element={<TalentRequest />} />
+                        <Route path="/contact" element={<ContactUs />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                        <Route path="/terms-of-service" element={<TermsOfService />} />
+                        <Route path="/thank-you" element={<ThankYou />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        {/* Pass currentUser and db to Profile/ProfileEdit as props */}
+                        <Route path="/profile" element={<Profile currentUser={currentUser} db={db} />} />
+                        <Route path="/profile/edit" element={<ProfileEdit currentUser={currentUser} db={db} />} />
+                        <Route path="/talents" element={<TalentDirectory />} />
+                        {/* Fallback route for 404 - you might want a dedicated 404 component */}
+                        {/* <Route path="*" element={<NotFound />} /> */}
+                    </Routes>
+                </Suspense>
             </main>
 
             {/* Footer background to green-1, text to beige-3 */}

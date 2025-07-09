@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+
 import { useNavigate, Link } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 // --- NEW IMPORT: Use the installed library for countries and cities ---
 import { Country, City } from 'country-state-city';
 
+/* Removed duplicate lazy loading and route definition for ProfileEdit */
+
+
 // --- Helper function to update nested state properties immutably ---
-const updateNestedProperty = (obj, path, value) => {
+function updateNestedProperty(obj, path, value) {
     const keys = path.split('.');
     const newObj = JSON.parse(JSON.stringify(obj));
     let current = newObj;
@@ -17,7 +21,7 @@ const updateNestedProperty = (obj, path, value) => {
     }
     current[keys[keys.length - 1]] = value;
     return newObj;
-};
+}
 
 // --- Reusable Input Field Component ---
 const InputField = ({ id, label, value, onChange, name, placeholder = '', type = 'text', readOnly = false, isRequired = false }) => (
